@@ -1,10 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { execFileSync } from 'node:child_process'
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { resolve, join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 const ROOT = resolve(import.meta.dirname, '..')
 const client = readFileSync(resolve(ROOT, 'src/client.js'), 'utf8')
+const clientBundle = readFileSync(resolve(ROOT, 'dist/client.js'), 'utf8')
 
 test('client half uses plain browser timers, not the bundle-unavailable cordis timer service', () => {
   // The `timer` service is only installed for dynamic cordis-runner packages; a
@@ -46,4 +49,57 @@ test('client half paints accumulating text while a message is still streaming', 
   // streaming was invisible (users saw spinning dots, then the full reply).
   assert.match(client, /m\.pending \? \(m\.text \|\| typing\)/, 'pending bubble must show m.text once any token arrived')
   assert.match(client, /const typing = React\.createElement\('span', \{ className: 'dsh-elf-typing' \}/, 'typing dots must be the fallback, not the only pending render')
+})
+
+test('a fresh git archive of HEAD ships dist/client.js so git-based installs work', (t) => {
+  // Regression guard: installing dsh-elf as a git dependency (e.g.
+  // `github:winditer/dsh-elf` in a profile's package.json) makes pnpm download
+  // the codeload tarball, which is `git archive` of the pinned commit. When
+  // dist/client.js was gitignored the tarball had no bundle and
+  // @deepseek-ai/dsh-client-modules tore down the whole plugin tree at launch:
+  // "client bundles not found; run `pnpm run build` before launch".
+  let insideWorkTree
+  try {
+    execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { stdio: 'ignore' })
+    insideWorkTree = true
+  } catch {
+    insideWorkTree = false
+  }
+  if (!insideWorkTree) {
+    t.skip('not a git worktree; nothing to archive')
+    return
+  }
+  const dir = mkdtempSync(join(tmpdir(), 'dsh-elf-archive-'))
+  try {
+    const archive = join(dir, 'tree.tar')
+    execFileSync('git', ['archive', '--format=tar', '-o', archive, 'HEAD'], { stdio: 'ignore' })
+    const listed = execFileSync('tar', ['tf', archive], { encoding: 'utf8' }).split('\n')
+    assert.ok(
+      listed.includes('dist/client.js'),
+      'dist/client.js must be present in a fresh git archive of HEAD (it is gitignored and was missing)'
+    )
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('the committed dist/client.js is byte-fresh: rebuilding from src/client.js reproduces it', async () => {
+  // The bundle is now committed (so git-based installs work); this guard keeps
+  // that committed artifact from silently rotting when src/client.js changes.
+  // It runs the same pipeline as `npm run build`, not a copy of the config.
+  // The check must build into dist/ itself: the inline sourcemap records
+  // `sources` relative to the output file's directory, so building into a temp
+  // dir would produce different bytes even when nothing changed.
+  const { buildClientBundle } = await import('../scripts/build.mjs')
+  const freshOut = resolve(ROOT, 'dist', `.client-fresh-${process.pid}.js`)
+  try {
+    const fresh = await buildClientBundle({ outFile: freshOut })
+    assert.equal(
+      fresh,
+      clientBundle,
+      'dist/client.js is stale — run `npm run build` and commit the rebuild together with src/client.js'
+    )
+  } finally {
+    rmSync(freshOut, { force: true })
+  }
 })

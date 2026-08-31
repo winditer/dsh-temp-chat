@@ -3,6 +3,18 @@
 All notable changes to dsh-elf are tracked here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Fixed
+
+- Git-based installs no longer fail the plugin tree at launch: the built client
+  bundle (`dist/client.js`) is now committed, so profiles that install the
+  plugin straight from the repository (e.g. `github:winditer/dsh-elf`) receive
+  the bundle instead of dying with `client bundles not found; run pnpm run
+  build before launch`. `npm test` now guards both the `git archive HEAD`
+  contents and the byte-freshness of the committed bundle, and esbuild is
+  pinned to an exact version so the rebuild is reproducible.
+
 ## 2.2.1 — 2026-08-19
 
 - Fixed invisible streaming: a pending assistant message carried the growing

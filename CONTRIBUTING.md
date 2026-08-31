@@ -42,8 +42,19 @@ CI runs all three on Node 22 and 24 for every push and PR.
   it elsewhere or rename the package casually.
 - **Profile bundles get no cordis `timer` service.** Use plain browser
   `setInterval`/`setTimeout` in the client and dispose them from effect cleanup.
+- **`dist/client.js` is committed, and must stay fresh.** Profile installs done
+  as git dependencies download a codeload tarball of the commit — if the bundle
+  were gitignored (as it once was), those installs shipped no `dist/client.js`
+  and DSH tore down the whole plugin tree at launch (`client bundles not found;
+  run pnpm run build before launch`). So when you change `src/client.js`, run
+  `npm run build` and commit the rebuilt `dist/client.js` in the same commit.
+  Neither half needs this for registry/npm installs only, but the repo policy is:
+  the tree must always be installable from git. `npm test` enforces both sides
+  of the contract — a fresh `git archive HEAD` must contain `dist/client.js`,
+  and rebuilding from `src/client.js` must reproduce the committed bundle
+  byte-for-byte (esbuild is pinned to an exact version so this is reproducible).
 - **Client changes go live on page refresh;** host changes need a full DSH
-  restart. `dist/client.js` is a generated artifact and is not committed.
+  restart.
 
 ## Submitting changes
 

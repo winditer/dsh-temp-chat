@@ -48,6 +48,14 @@ dsh plugin --profile desktop add dsh-elf
 
 Restart DSH (quit fully and reopen), then a fresh page shows the elf at the bottom-right.
 
+### From git
+
+Installing the plugin directly from the repository (e.g. `"dsh-elf": "github:winditer/dsh-elf"` in a
+profile's `package.json`) also works out of the box: the built client bundle is **committed**, so the
+codeload tarball a git install downloads already contains `dist/client.js` and no build step is needed
+on the consuming side. (This was not always true — the bundle used to be gitignored, which made the
+plugin tree fail to load with `client bundles not found; run pnpm run build before launch`.)
+
 ### From source (development)
 
 ```sh
