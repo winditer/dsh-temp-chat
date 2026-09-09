@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to dsh-elf are tracked here. Format follows
+All notable changes to dsh-temp-chat are tracked here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
@@ -9,7 +9,7 @@ All notable changes to dsh-elf are tracked here. Format follows
 
 - Git-based installs no longer fail the plugin tree at launch: the built client
   bundle (`dist/client.js`) is now committed, so profiles that install the
-  plugin straight from the repository (e.g. `github:winditer/dsh-elf`) receive
+  plugin straight from the repository (e.g. `github:winditer/dsh-temp-chat`) receive
   the bundle instead of dying with `client bundles not found; run pnpm run
   build before launch`. `npm test` now guards both the `git archive HEAD`
   contents and the byte-freshness of the committed bundle, and esbuild is
@@ -44,4 +44,4 @@ All notable changes to dsh-elf are tracked here. Format follows
   touches session history; follows the session default model with zero config,
   or any OpenAI-compatible endpoint (native SSE streaming) in custom mode.
 - Drag position, config, window state and chat history persist in
-  `localStorage` (keys under `dsh-elf:`).
+  `localStorage` (keys under `dsh-temp-chat:`).

@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="assets/whale.svg" width="96" alt="dsh-elf logo">
+  <img src="assets/whale.svg" width="96" alt="dsh-temp-chat logo">
 </p>
 
-# dsh-elf
+# dsh-temp-chat
 
 [English](README.md) | 中文
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24-339933.svg)](package.json)
-[![npm](https://img.shields.io/npm/v/dsh-elf.svg)](https://www.npmjs.com/package/dsh-elf)
+[![npm](https://img.shields.io/npm/v/dsh-temp-chat.svg)](https://www.npmjs.com/package/dsh-temp-chat)
 
 一只住在 DSH 页面上的 DeepSeek 鲸鱼小精灵。半透明的鲸鱼（取官方 DeepSeek favicon 轮廓，蓝 → 紫 → 绿渐变）悬浮在视口边缘缓慢游动；点击即可打开一个轻量、可拖动的临时聊天浮窗，**不会写入任何会话历史**。
 
@@ -42,7 +42,7 @@
 ### 从 npm 安装
 
 ```sh
-dsh plugin --profile desktop add dsh-elf
+dsh plugin --profile desktop add dsh-temp-chat
 ```
 
 完全退出并重启 DSH，新页面右下角即出现小精灵。
@@ -50,7 +50,7 @@ dsh plugin --profile desktop add dsh-elf
 ### 从源码安装（开发模式）
 
 ```sh
-git clone https://github.com/winditer/dsh-elf.git dsh-elf && cd dsh-elf
+git clone https://github.com/winditer/dsh-temp-chat.git dsh-temp-chat && cd dsh-temp-chat
 npm install
 npm run build          # 产出 dist/client.js
 dsh plugin --profile desktop add .    # 按包名把工作区以 link 装进 profile
@@ -61,12 +61,12 @@ dsh plugin --profile desktop add .    # 按包名把工作区以 link 装进 pro
 ```jsonc
 {
   "dependencies": {
-    "dsh-elf": "link:/绝对路径/to/dsh-elf"
+    "dsh-temp-chat": "link:/绝对路径/to/dsh-temp-chat"
     // ...
   },
   "dsh": {
     "profile": {
-      "bundles": [ /* ... */, "dsh-elf" ]
+      "bundles": [ /* ... */, "dsh-temp-chat" ]
     }
   }
 }
@@ -76,11 +76,11 @@ dsh plugin --profile desktop add .    # 按包名把工作区以 link 装进 pro
 
 ### 卸载
 
-从 profile 的 `dependencies` 与 `dsh.profile.bundles` 中移除 `dsh-elf`，再清理链接（`rm -rf <profile>/node_modules/dsh-elf` 或 `pnpm --filter dsh-elf remove --dir <profile>`）。
+从 profile 的 `dependencies` 与 `dsh.profile.bundles` 中移除 `dsh-temp-chat`，再清理链接（`rm -rf <profile>/node_modules/dsh-temp-chat` 或 `pnpm --filter dsh-temp-chat remove --dir <profile>`）。
 
 ## 使用
 
-- **拖动**小精灵可停靠在任意位置（落点持久化在 `dsh-elf:orb`）；**点击**（未拖动）打开聊天窗
+- **拖动**小精灵可停靠在任意位置（落点持久化在 `dsh-temp-chat:orb`）；**点击**（未拖动）打开聊天窗
 - 聊天窗头部：模型徽章 · `⚙` 配置 · `—` 最小化 · `清空` 清空
 - `Enter` 发送，`Shift+Enter` 换行；悬停消息点击 `📋` 复制
 - 聊天是**临时的**：不会写入 DSH 会话，插件停止或手动清空即消失
@@ -96,18 +96,18 @@ dsh plugin --profile desktop add .    # 按包名把工作区以 link 装进 pro
 | API 地址 / API Key / 模型 | 自定义路由的地址、密钥与模型名 |
 | reasoning | 可选 `reasoning_effort`（`high` / `medium` / `low`），兼容模型可用 |
 
-配置保存在浏览器 `localStorage`（`dsh-elf:cfg`），聊天记录、浮窗与精灵位置、窗口模式同样持久化（`dsh-elf:chat` / `dsh-elf:orb` / `dsh-elf:win` / `dsh-elf:mode`）。
+配置保存在浏览器 `localStorage`（`dsh-temp-chat:cfg`），聊天记录、浮窗与精灵位置、窗口模式同样持久化（`dsh-temp-chat:chat` / `dsh-temp-chat:orb` / `dsh-temp-chat:win` / `dsh-temp-chat:mode`）。
 
 ## 架构
 
 一个包、两个 half：
 
-- **Host half** — `lib/index.js`（= `src/host.js`）。经 Harness 的 `webServer` 服务在 `/dsh-elf/api` 注册 JSON API；跟随默认路由通过 `llm.stream` 运行；聊天状态存于内存 `Map`，插件卸载即清空。
-- **Client half** — `src/client.js`，esbuild 打包为 `dist/client.js`（`__ModuleLoader__.load({ id: "dsh-elf", … })` 包装，**id 必须等于安装包名**）。渲染进 `shell.overlay` 插槽，通过 `fetch` POST 与 host 通信。
+- **Host half** — `lib/index.js`（= `src/host.js`）。经 Harness 的 `webServer` 服务在 `/dsh-temp-chat/api` 注册 JSON API；跟随默认路由通过 `llm.stream` 运行；聊天状态存于内存 `Map`，插件卸载即清空。
+- **Client half** — `src/client.js`，esbuild 打包为 `dist/client.js`（`__ModuleLoader__.load({ id: "dsh-temp-chat", … })` 包装，**id 必须等于安装包名**）。渲染进 `shell.overlay` 插槽，通过 `fetch` POST 与 host 通信。
 
 ### Host API
 
-所有端点为 `POST /dsh-elf/api/<method>`；响应统一为 `{ ok: true, value }` 或 `{ ok: false, error }`。
+所有端点为 `POST /dsh-temp-chat/api/<method>`；响应统一为 `{ ok: true, value }` 或 `{ ok: false, error }`。
 
 | Method | Body | 返回 |
 | --- | --- | --- |
@@ -135,11 +135,11 @@ npm test        # node --test（host 挂载回归 + client bundle 守卫）
 ### 目录结构
 
 ```
-src/client.js      Client half（shell.overlay、原生浏览器计时器、fetch → /dsh-elf/api）
+src/client.js      Client half（shell.overlay、原生浏览器计时器、fetch → /dsh-temp-chat/api）
 src/host.js        Host half 源码（= lib/index.js，Node 入口）
 lib/index.js       包主入口 = host half，由 DSH host 运行时加载
-dist/client.js     构建产物（__ModuleLoader__ 格式，load id = dsh-elf）
-cordis.patch.yml   bundle 入口声明（insert: { id: elf, name: dsh-elf }）
+dist/client.js     构建产物（__ModuleLoader__ 格式，load id = dsh-temp-chat）
+cordis.patch.yml   bundle 入口声明（insert: { id: elf, name: dsh-temp-chat }）
 scripts/build.mjs  构建脚本（esbuild + bundle 包装）
 test/              node:test 测试套件
 assets/            Logo / 鲸鱼素材
@@ -155,7 +155,7 @@ assets/            Logo / 鲸鱼素材
 
   ```yaml
   minimumReleaseAgeExclude:
-    - dsh-elf@2.2.1
+    - dsh-temp-chat@2.2.1
   ```
 
 ## 许可证

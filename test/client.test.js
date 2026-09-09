@@ -11,7 +11,7 @@ const clientBundle = readFileSync(resolve(ROOT, 'dist/client.js'), 'utf8')
 
 test('client half uses plain browser timers, not the bundle-unavailable cordis timer service', () => {
   // The `timer` service is only installed for dynamic cordis-runner packages; a
-  // profile-bundle client like dsh-elf gets ctx.get('timer') === undefined, which
+  // profile-bundle client like dsh-temp-chat gets ctx.get('timer') === undefined, which
   // silently killed both the orb drift and the chat poll loop. Regression guard.
   assert.doesNotMatch(client, /ctx\.get\('timer'\)/, 'must not depend on the cordis timer service')
   assert.match(client, /window\.setInterval\(/, 'drift/chat timers must use plain browser setInterval')
@@ -21,19 +21,19 @@ test('client half uses plain browser timers, not the bundle-unavailable cordis t
 })
 
 test('client half styles the "follow session default" checkbox explicitly', () => {
-  // `.dsh-elf-configrow input { flex:1; min-width:0; }` used to also match the
+  // `.dsh-temp-chat-configrow input { flex:1; min-width:0; }` used to also match the
   // checkbox, squeezing it to zero width so the toggle was invisible. Regression guard.
   assert.match(client, /input\[type='checkbox'\]/, 'checkbox needs its own explicit rule')
   assert.match(client, /min-width: 14px/, 'checkbox must not shrink below 14px')
-  assert.match(client, /\.dsh-elf-configrow label\.dsh-elf-check \{ width: auto/, 'follow label must not inherit the 84px column width')
-  assert.match(client, /input\[type='text'\], \.dsh-elf-configrow input\[type='password'\]/, 'generic input styling must exclude the checkbox')
+  assert.match(client, /\.dsh-temp-chat-configrow label\.dsh-temp-chat-check \{ width: auto/, 'follow label must not inherit the 84px column width')
+  assert.match(client, /input\[type='text'\], \.dsh-temp-chat-configrow input\[type='password'\]/, 'generic input styling must exclude the checkbox')
 })
 test('client half follows the DSH locale service with zh/en dictionaries', () => {
   assert.match(client, /inject: \['slots', 'locale'\]/, 'client must inject the locale service')
   assert.match(client, /React\.useSyncExternalStore\(/, 'locale changes must re-render via useSyncExternalStore')
   assert.match(client, /startsWith\('zh'\)/, 'zh must be detected by language prefix')
   assert.match(client, /navigator\.language/, 'must fall back to navigator.language when the locale service is absent')
-  assert.match(client, /register\(NS, \{ zh, en \}\)/, 'dictionaries must be registered under the dsh-elf namespace')
+  assert.match(client, /register\(NS, \{ zh, en \}\)/, 'dictionaries must be registered under the dsh-temp-chat namespace')
 })
 
 test('client half no longer hardcodes user-visible Chinese literals', () => {
@@ -48,12 +48,12 @@ test('client half paints accumulating text while a message is still streaming', 
   // `pending` flipped to false — the whole answer then appeared at once, so
   // streaming was invisible (users saw spinning dots, then the full reply).
   assert.match(client, /m\.pending \? \(m\.text \|\| typing\)/, 'pending bubble must show m.text once any token arrived')
-  assert.match(client, /const typing = React\.createElement\('span', \{ className: 'dsh-elf-typing' \}/, 'typing dots must be the fallback, not the only pending render')
+  assert.match(client, /const typing = React\.createElement\('span', \{ className: 'dsh-temp-chat-typing' \}/, 'typing dots must be the fallback, not the only pending render')
 })
 
 test('a fresh git archive of HEAD ships dist/client.js so git-based installs work', (t) => {
-  // Regression guard: installing dsh-elf as a git dependency (e.g.
-  // `github:winditer/dsh-elf` in a profile's package.json) makes pnpm download
+  // Regression guard: installing dsh-temp-chat as a git dependency (e.g.
+  // `github:winditer/dsh-temp-chat` in a profile's package.json) makes pnpm download
   // the codeload tarball, which is `git archive` of the pinned commit. When
   // dist/client.js was gitignored the tarball had no bundle and
   // @deepseek-ai/dsh-client-modules tore down the whole plugin tree at launch:
@@ -69,7 +69,7 @@ test('a fresh git archive of HEAD ships dist/client.js so git-based installs wor
     t.skip('not a git worktree; nothing to archive')
     return
   }
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-elf-archive-'))
+  const dir = mkdtempSync(join(tmpdir(), 'dsh-temp-chat-archive-'))
   try {
     const archive = join(dir, 'tree.tar')
     execFileSync('git', ['archive', '--format=tar', '-o', archive, 'HEAD'], { stdio: 'ignore' })

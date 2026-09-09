@@ -1,4 +1,4 @@
-/** dsh-elf 构建脚本 — esbuild 打包 Client half 为官方 client.js 格式 */
+/** dsh-temp-chat 构建脚本 — esbuild 打包 Client half 为官方 client.js 格式 */
 
 import * as esbuild from 'esbuild';
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
@@ -41,7 +41,7 @@ export async function buildClientBundle({ outFile = outFinal } = {}) {
 
     const bundle = readFileSync(outRaw, 'utf8');
 
-    // 运行时约束（与 dsh-prompt-optimizer 同源）：bundle 的 load id 必须等于安装包名 dsh-elf，
+    // 运行时约束（与 dsh-prompt-optimizer 同源）：bundle 的 load id 必须等于安装包名 dsh-temp-chat，
     // 否则 arrive() 抛出 "bundle loaded without registering <id>"。从 package.json 派生 id，
     // 一旦包名（或这段逻辑）漂移就在构建期立刻失败，而不是等运行时才爆。
     const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));

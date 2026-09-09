@@ -1,6 +1,6 @@
-// dsh-elf — zh/en dictionaries. zh is the source of truth; en mirrors it 1:1.
+// dsh-temp-chat — zh/en dictionaries. zh is the source of truth; en mirrors it 1:1.
 
-export const NS = 'dsh-elf';
+export const NS = 'dsh-temp-chat';
 
 export const zh = {
   name: 'DeepSeek 小精灵',

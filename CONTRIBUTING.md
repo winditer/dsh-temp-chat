@@ -1,4 +1,4 @@
-# Contributing to dsh-elf
+# Contributing to dsh-temp-chat
 
 Thanks for helping with the elf! The plugin is small on purpose, so the bar for
 contributions is low but real.
@@ -6,7 +6,7 @@ contributions is low but real.
 ## Getting started
 
 ```sh
-git clone https://github.com/winditer/dsh-elf.git && cd dsh-elf
+git clone https://github.com/winditer/dsh-temp-chat.git && cd dsh-temp-chat
 npm install          # esbuild is the only dependency
 npm run build        # src/client.js -> dist/client.js (__ModuleLoader__ bundle)
 ```
@@ -30,7 +30,7 @@ CI runs all three on Node 22 and 24 for every push and PR.
 ## Architecture at a glance
 
 - `src/host.js` — Node host half (also shipped as `lib/index.js`): registers the
-  `/dsh-elf/api` JSON route and streams session-default chats via `llm.stream`.
+  `/dsh-temp-chat/api` JSON route and streams session-default chats via `llm.stream`.
 - `src/client.js` — browser half, bundled to `dist/client.js`: renders into the
   `shell.overlay` slot, talks to the host with `fetch` POSTs.
 - `scripts/build.mjs` — esbuild + the `__ModuleLoader__` wrapper.

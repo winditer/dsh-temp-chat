@@ -1,4 +1,4 @@
-// dsh-elf — Client half
+// dsh-temp-chat — Client half
 // Slowly drifting DeepSeek whale elf powered by the official favicon.svg whale
 // (https://www.deepseek.com/harness/favicon.svg), translucent blue-purple-green
 // gradient tile; click to open a draggable floating chat; minimize returns to
@@ -8,7 +8,7 @@
 import React from 'react';
 import { en, zh, NS } from './locales.js';
 
-const API_PREFIX = '/dsh-elf/api';
+const API_PREFIX = '/dsh-temp-chat/api';
 
 async function callHost(method, args) {
   const response = await fetch(`${API_PREFIX}/${encodeURIComponent(method)}`, {
@@ -29,7 +29,7 @@ const plugin = {
     const locale = ctx.locale;
     const t = locale ? locale.bind(NS) : null;
     if (locale) {
-      ctx.effect(() => locale.register(NS, { zh, en }), 'dsh-elf: dictionaries');
+      ctx.effect(() => locale.register(NS, { zh, en }), 'dsh-temp-chat: dictionaries');
     }
     function currentLang() {
       const active = locale ? String(locale.getSnapshot().active) : String(document.documentElement.lang || navigator.language || 'zh');
@@ -43,14 +43,14 @@ const plugin = {
     // cleanup.
     const styles = {
       insert(css) {
-        const selector = 'style[data-plugin-css="dsh-elf"]';
+        const selector = 'style[data-plugin-css="dsh-temp-chat"]';
         if (document.querySelector(selector)) return;
         const tag = document.createElement('style');
-        tag.dataset.plugin = 'dsh-elf';
-        tag.dataset.pluginCss = 'dsh-elf';
+        tag.dataset.plugin = 'dsh-temp-chat';
+        tag.dataset.pluginCss = 'dsh-temp-chat';
         tag.textContent = css;
         document.head.appendChild(tag);
-        ctx.effect(() => () => tag.remove(), 'dsh-elf: styles');
+        ctx.effect(() => () => tag.remove(), 'dsh-temp-chat: styles');
       },
     };
 
@@ -80,73 +80,73 @@ const plugin = {
 
     // ---- Styles ----
     styles.insert(`
-.dsh-elf-root { position: fixed; inset: 0; pointer-events: none; z-index: 2147483000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
-.dsh-elf-root * { box-sizing: border-box; }
-.dsh-elf-orb { position: fixed; pointer-events: auto; cursor: pointer; user-select: none; -webkit-user-select: none; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; animation: dsh-elf-bob 4.2s ease-in-out infinite; transition: transform .15s ease; touch-action: none; }
-.dsh-elf-orb:hover { transform: scale(1.08); }
-.dsh-elf-orb svg { width: 40px; height: 40px; filter: drop-shadow(0 2px 5px rgba(77,107,254,.35)); }
-@keyframes dsh-elf-bob { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
-@keyframes dsh-elf-in { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.dsh-temp-chat-root { position: fixed; inset: 0; pointer-events: none; z-index: 2147483000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+.dsh-temp-chat-root * { box-sizing: border-box; }
+.dsh-temp-chat-orb { position: fixed; pointer-events: auto; cursor: pointer; user-select: none; -webkit-user-select: none; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; animation: dsh-temp-chat-bob 4.2s ease-in-out infinite; transition: transform .15s ease; touch-action: none; }
+.dsh-temp-chat-orb:hover { transform: scale(1.08); }
+.dsh-temp-chat-orb svg { width: 40px; height: 40px; filter: drop-shadow(0 2px 5px rgba(77,107,254,.35)); }
+@keyframes dsh-temp-chat-bob { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
+@keyframes dsh-temp-chat-in { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-.dsh-elf-win { position: fixed; pointer-events: auto; display: flex; flex-direction: column; width: 400px; max-width: calc(100vw - 24px); height: 540px; max-height: calc(100vh - 24px); border-radius: 16px; overflow: hidden; background: rgba(255,255,255,.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(139,92,246,.28); box-shadow: 0 18px 50px rgba(30,41,99,.28), 0 2px 10px rgba(30,41,99,.14); animation: dsh-elf-in .18s ease-out; z-index: 1; }
-.dsh-elf-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: move; user-select: none; -webkit-user-select: none; background: linear-gradient(135deg, rgba(77,107,254,.16), rgba(139,92,246,.13) 55%, rgba(52,211,153,.16)); border-bottom: 1px solid rgba(139,92,246,.18); touch-action: none; }
-.dsh-elf-head svg { width: 24px; height: 24px; flex: none; }
-.dsh-elf-title { font-size: 13px; font-weight: 600; color: #1e293b; white-space: nowrap; }
-.dsh-elf-model { font-size: 11px; color: #64748b; background: rgba(139,92,246,.12); padding: 2px 8px; border-radius: 999px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
-.dsh-elf-headbtn { border: none; background: transparent; cursor: pointer; color: #475569; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; padding: 0; flex: none; }
-.dsh-elf-headbtn:hover { background: rgba(139,92,246,.16); }
-.dsh-elf-headbtn:disabled { opacity: .4; cursor: default; }
-.dsh-elf-clear { border: 1px solid rgba(239,68,68,.35); background: rgba(239,68,68,.06); color: #dc2626; cursor: pointer; font-size: 11px; line-height: 1; padding: 4px 9px; border-radius: 999px; flex: none; }
-.dsh-elf-clear:hover { background: rgba(239,68,68,.14); }
-.dsh-elf-clear:disabled { opacity: .4; cursor: default; }
-.dsh-elf-spacer { flex: 1; }
+.dsh-temp-chat-win { position: fixed; pointer-events: auto; display: flex; flex-direction: column; width: 400px; max-width: calc(100vw - 24px); height: 540px; max-height: calc(100vh - 24px); border-radius: 16px; overflow: hidden; background: rgba(255,255,255,.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(139,92,246,.28); box-shadow: 0 18px 50px rgba(30,41,99,.28), 0 2px 10px rgba(30,41,99,.14); animation: dsh-temp-chat-in .18s ease-out; z-index: 1; }
+.dsh-temp-chat-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: move; user-select: none; -webkit-user-select: none; background: linear-gradient(135deg, rgba(77,107,254,.16), rgba(139,92,246,.13) 55%, rgba(52,211,153,.16)); border-bottom: 1px solid rgba(139,92,246,.18); touch-action: none; }
+.dsh-temp-chat-head svg { width: 24px; height: 24px; flex: none; }
+.dsh-temp-chat-title { font-size: 13px; font-weight: 600; color: #1e293b; white-space: nowrap; }
+.dsh-temp-chat-model { font-size: 11px; color: #64748b; background: rgba(139,92,246,.12); padding: 2px 8px; border-radius: 999px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
+.dsh-temp-chat-headbtn { border: none; background: transparent; cursor: pointer; color: #475569; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; padding: 0; flex: none; }
+.dsh-temp-chat-headbtn:hover { background: rgba(139,92,246,.16); }
+.dsh-temp-chat-headbtn:disabled { opacity: .4; cursor: default; }
+.dsh-temp-chat-clear { border: 1px solid rgba(239,68,68,.35); background: rgba(239,68,68,.06); color: #dc2626; cursor: pointer; font-size: 11px; line-height: 1; padding: 4px 9px; border-radius: 999px; flex: none; }
+.dsh-temp-chat-clear:hover { background: rgba(239,68,68,.14); }
+.dsh-temp-chat-clear:disabled { opacity: .4; cursor: default; }
+.dsh-temp-chat-spacer { flex: 1; }
 
-.dsh-elf-config { padding: 10px 12px; border-bottom: 1px solid rgba(139,92,246,.16); background: rgba(148,163,184,.07); font-size: 12px; color: #334155; display: none; max-height: 250px; overflow-y: auto; }
-.dsh-elf-config.open { display: block; }
-.dsh-elf-configrow { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-.dsh-elf-configrow label { width: 84px; flex: none; color: #475569; }
-.dsh-elf-configrow input[type='text'], .dsh-elf-configrow input[type='password'], .dsh-elf-configrow select { flex: 1; border: 1px solid rgba(139,92,246,.3); border-radius: 6px; padding: 4px 8px; font-size: 12px; background: rgba(255,255,255,.85); color: #1e293b; outline: none; min-width: 0; }
-.dsh-elf-configrow input[type='text']:focus, .dsh-elf-configrow input[type='password']:focus, .dsh-elf-configrow select:focus { border-color: #8b5cf6; }
-.dsh-elf-check { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
-.dsh-elf-configrow label.dsh-elf-check { width: auto; flex: none; }
-.dsh-elf-configrow input[type='checkbox'] { flex: none; width: 14px; height: 14px; min-width: 14px; min-height: 14px; margin: 0; padding: 0; border: none; background: transparent; accent-color: #8b5cf6; cursor: pointer; }
-.dsh-elf-hint { font-size: 11px; color: #64748b; margin: 4px 0 2px; }
+.dsh-temp-chat-config { padding: 10px 12px; border-bottom: 1px solid rgba(139,92,246,.16); background: rgba(148,163,184,.07); font-size: 12px; color: #334155; display: none; max-height: 250px; overflow-y: auto; }
+.dsh-temp-chat-config.open { display: block; }
+.dsh-temp-chat-configrow { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.dsh-temp-chat-configrow label { width: 84px; flex: none; color: #475569; }
+.dsh-temp-chat-configrow input[type='text'], .dsh-temp-chat-configrow input[type='password'], .dsh-temp-chat-configrow select { flex: 1; border: 1px solid rgba(139,92,246,.3); border-radius: 6px; padding: 4px 8px; font-size: 12px; background: rgba(255,255,255,.85); color: #1e293b; outline: none; min-width: 0; }
+.dsh-temp-chat-configrow input[type='text']:focus, .dsh-temp-chat-configrow input[type='password']:focus, .dsh-temp-chat-configrow select:focus { border-color: #8b5cf6; }
+.dsh-temp-chat-check { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.dsh-temp-chat-configrow label.dsh-temp-chat-check { width: auto; flex: none; }
+.dsh-temp-chat-configrow input[type='checkbox'] { flex: none; width: 14px; height: 14px; min-width: 14px; min-height: 14px; margin: 0; padding: 0; border: none; background: transparent; accent-color: #8b5cf6; cursor: pointer; }
+.dsh-temp-chat-hint { font-size: 11px; color: #64748b; margin: 4px 0 2px; }
 
-.dsh-elf-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: transparent; }
-.dsh-elf-msg { max-width: 86%; padding: 8px 11px; border-radius: 12px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; position: relative; }
-.dsh-elf-msg.user { align-self: flex-end; background: linear-gradient(135deg, #4d6bfe, #8b5cf6); color: #fff; border-bottom-right-radius: 4px; }
-.dsh-elf-msg.assistant { align-self: flex-start; background: rgba(139,92,246,.1); color: #1e293b; border: 1px solid rgba(139,92,246,.18); border-bottom-left-radius: 4px; }
-.dsh-elf-msg.error { border-color: rgba(239,68,68,.5); color: #b91c1c; background: rgba(239,68,68,.08); }
-.dsh-elf-msg .copy { position: absolute; top: 4px; right: 6px; border: none; background: transparent; cursor: pointer; font-size: 12px; color: #94a3b8; opacity: 0; transition: opacity .12s; padding: 2px 4px; border-radius: 4px; }
-.dsh-elf-msg:hover .copy { opacity: 1; }
-.dsh-elf-msg .copy:hover { color: #8b5cf6; background: rgba(139,92,246,.1); }
-.dsh-elf-msg.user .copy { color: rgba(255,255,255,.75); }
-.dsh-elf-typing { display: inline-flex; gap: 4px; align-items: center; height: 18px; }
-.dsh-elf-typing i { width: 5px; height: 5px; border-radius: 50%; background: #8b5cf6; animation: dsh-elf-bounce 1s ease-in-out infinite; }
-.dsh-elf-typing i:nth-child(2) { animation-delay: .15s; }
-.dsh-elf-typing i:nth-child(3) { animation-delay: .3s; }
-@keyframes dsh-elf-bounce { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-5px); opacity: 1; } }
+.dsh-temp-chat-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: transparent; }
+.dsh-temp-chat-msg { max-width: 86%; padding: 8px 11px; border-radius: 12px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; position: relative; }
+.dsh-temp-chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, #4d6bfe, #8b5cf6); color: #fff; border-bottom-right-radius: 4px; }
+.dsh-temp-chat-msg.assistant { align-self: flex-start; background: rgba(139,92,246,.1); color: #1e293b; border: 1px solid rgba(139,92,246,.18); border-bottom-left-radius: 4px; }
+.dsh-temp-chat-msg.error { border-color: rgba(239,68,68,.5); color: #b91c1c; background: rgba(239,68,68,.08); }
+.dsh-temp-chat-msg .copy { position: absolute; top: 4px; right: 6px; border: none; background: transparent; cursor: pointer; font-size: 12px; color: #94a3b8; opacity: 0; transition: opacity .12s; padding: 2px 4px; border-radius: 4px; }
+.dsh-temp-chat-msg:hover .copy { opacity: 1; }
+.dsh-temp-chat-msg .copy:hover { color: #8b5cf6; background: rgba(139,92,246,.1); }
+.dsh-temp-chat-msg.user .copy { color: rgba(255,255,255,.75); }
+.dsh-temp-chat-typing { display: inline-flex; gap: 4px; align-items: center; height: 18px; }
+.dsh-temp-chat-typing i { width: 5px; height: 5px; border-radius: 50%; background: #8b5cf6; animation: dsh-temp-chat-bounce 1s ease-in-out infinite; }
+.dsh-temp-chat-typing i:nth-child(2) { animation-delay: .15s; }
+.dsh-temp-chat-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dsh-temp-chat-bounce { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-5px); opacity: 1; } }
 
-.dsh-elf-inputrow { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid rgba(139,92,246,.16); background: rgba(255,255,255,.6); }
-.dsh-elf-input { flex: 1; border: 1px solid rgba(139,92,246,.28); border-radius: 10px; padding: 8px 10px; font-size: 13px; line-height: 1.4; resize: none; outline: none; background: rgba(255,255,255,.9); color: #1e293b; max-height: 96px; font-family: inherit; }
-.dsh-elf-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
-.dsh-elf-send { border: none; cursor: pointer; background: linear-gradient(135deg, #4d6bfe, #8b5cf6); color: #fff; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; flex: none; }
-.dsh-elf-send:hover { filter: brightness(1.08); }
-.dsh-elf-send:disabled { opacity: .5; cursor: default; }
+.dsh-temp-chat-inputrow { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid rgba(139,92,246,.16); background: rgba(255,255,255,.6); }
+.dsh-temp-chat-input { flex: 1; border: 1px solid rgba(139,92,246,.28); border-radius: 10px; padding: 8px 10px; font-size: 13px; line-height: 1.4; resize: none; outline: none; background: rgba(255,255,255,.9); color: #1e293b; max-height: 96px; font-family: inherit; }
+.dsh-temp-chat-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
+.dsh-temp-chat-send { border: none; cursor: pointer; background: linear-gradient(135deg, #4d6bfe, #8b5cf6); color: #fff; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; flex: none; }
+.dsh-temp-chat-send:hover { filter: brightness(1.08); }
+.dsh-temp-chat-send:disabled { opacity: .5; cursor: default; }
 
 @media (prefers-color-scheme: dark) {
-  .dsh-elf-win { background: rgba(15,23,42,.9); border-color: rgba(139,92,246,.4); }
-  .dsh-elf-title { color: #e2e8f0; }
-  .dsh-elf-msg.assistant { color: #e2e8f0; background: rgba(139,92,246,.18); border-color: rgba(139,92,246,.3); }
-  .dsh-elf-msg.error { color: #fca5a5; }
-  .dsh-elf-model { color: #cbd5e1; background: rgba(139,92,246,.2); }
-  .dsh-elf-headbtn { color: #cbd5e1; }
-  .dsh-elf-config { color: #cbd5e1; background: rgba(148,163,184,.08); }
-  .dsh-elf-configrow label { color: #cbd5e1; }
-  .dsh-elf-configrow input[type='text'], .dsh-elf-configrow input[type='password'], .dsh-elf-configrow select { background: rgba(30,41,59,.8); color: #e2e8f0; border-color: rgba(139,92,246,.4); }
-  .dsh-elf-hint { color: #94a3b8; }
-  .dsh-elf-inputrow { background: rgba(15,23,42,.55); }
-  .dsh-elf-input { background: rgba(30,41,59,.85); color: #e2e8f0; border-color: rgba(139,92,246,.4); }
+  .dsh-temp-chat-win { background: rgba(15,23,42,.9); border-color: rgba(139,92,246,.4); }
+  .dsh-temp-chat-title { color: #e2e8f0; }
+  .dsh-temp-chat-msg.assistant { color: #e2e8f0; background: rgba(139,92,246,.18); border-color: rgba(139,92,246,.3); }
+  .dsh-temp-chat-msg.error { color: #fca5a5; }
+  .dsh-temp-chat-model { color: #cbd5e1; background: rgba(139,92,246,.2); }
+  .dsh-temp-chat-headbtn { color: #cbd5e1; }
+  .dsh-temp-chat-config { color: #cbd5e1; background: rgba(148,163,184,.08); }
+  .dsh-temp-chat-configrow label { color: #cbd5e1; }
+  .dsh-temp-chat-configrow input[type='text'], .dsh-temp-chat-configrow input[type='password'], .dsh-temp-chat-configrow select { background: rgba(30,41,59,.8); color: #e2e8f0; border-color: rgba(139,92,246,.4); }
+  .dsh-temp-chat-hint { color: #94a3b8; }
+  .dsh-temp-chat-inputrow { background: rgba(15,23,42,.55); }
+  .dsh-temp-chat-input { background: rgba(30,41,59,.85); color: #e2e8f0; border-color: rgba(139,92,246,.4); }
 }
 `);
 
@@ -155,7 +155,7 @@ const plugin = {
     // default: gradient whale (used in the chat window head).
     function WhaleIcon(props) {
       const white = props.white;
-      const gid = props.gid || 'dsh-elf-grad';
+      const gid = props.gid || 'dsh-temp-chat-grad';
       const defs = [];
       if (!white) {
         defs.push(React.createElement('defs', { key: 'defs' },
@@ -166,7 +166,7 @@ const plugin = {
           ),
         ));
       }
-      const cls = 'dsh-elf-whale' + (props.cls ? ' ' + props.cls : '');
+      const cls = 'dsh-temp-chat-whale' + (props.cls ? ' ' + props.cls : '');
       return React.createElement('svg', {
         viewBox: WHALE_VB,
         width: props.size || 46,
@@ -212,38 +212,38 @@ const plugin = {
       // ---- persistence ----
       React.useEffect(() => {
         try {
-          const raw = localStorage.getItem('dsh-elf:chat');
+          const raw = localStorage.getItem('dsh-temp-chat:chat');
           if (raw) {
             const saved = JSON.parse(raw);
             if (Array.isArray(saved)) setMsgs(saved.filter((m) => !m.pending));
           }
         } catch (e) { /* ignore */ }
         try {
-          const raw = localStorage.getItem('dsh-elf:cfg');
+          const raw = localStorage.getItem('dsh-temp-chat:cfg');
           const def = { follow: true, provider: 'deepseek', base: PRESETS[0].base, apiKey: '', model: '', effort: '' };
           if (raw) { const saved = JSON.parse(raw); setCfg(Object.assign(def, saved)); }
           else setCfg(def);
         } catch (e) { setCfg({ follow: true, provider: 'deepseek', base: PRESETS[0].base, apiKey: '', model: '', effort: '' }); }
         try {
-          const raw = localStorage.getItem('dsh-elf:orb');
+          const raw = localStorage.getItem('dsh-temp-chat:orb');
           if (raw) setOrbPos(JSON.parse(raw));
         } catch (e) { /* ignore */ }
         try {
-          const raw = localStorage.getItem('dsh-elf:win');
+          const raw = localStorage.getItem('dsh-temp-chat:win');
           if (raw) setWinPos(JSON.parse(raw));
         } catch (e) { /* ignore */ }
         try {
-          const raw = localStorage.getItem('dsh-elf:mode');
+          const raw = localStorage.getItem('dsh-temp-chat:mode');
           if (raw) setMode(raw);
         } catch (e) { /* ignore */ }
         callHost('elf.sessionModel', {}).then((r) => { if (r && r.available) setSession(r); }).catch(() => {});
       }, []);
 
-      React.useEffect(() => { try { localStorage.setItem('dsh-elf:chat', JSON.stringify(msgs)); } catch (e) {} }, [msgs]);
-      React.useEffect(() => { if (cfg) { try { localStorage.setItem('dsh-elf:cfg', JSON.stringify(cfg)); } catch (e) {} } }, [cfg]);
+      React.useEffect(() => { try { localStorage.setItem('dsh-temp-chat:chat', JSON.stringify(msgs)); } catch (e) {} }, [msgs]);
+      React.useEffect(() => { if (cfg) { try { localStorage.setItem('dsh-temp-chat:cfg', JSON.stringify(cfg)); } catch (e) {} } }, [cfg]);
       // Orb/win positions are persisted only when a manual drag ends (see onUp),
       // so the drift animation never thrashes localStorage.
-      React.useEffect(() => { try { localStorage.setItem('dsh-elf:mode', mode); } catch (e) {} }, [mode]);
+      React.useEffect(() => { try { localStorage.setItem('dsh-temp-chat:mode', mode); } catch (e) {} }, [mode]);
 
       // ---- effective model label ----
       let effModel = '…';
@@ -309,14 +309,14 @@ const plugin = {
             const x = clamp(e.clientX - drag.dx, 6, vw - size - 6);
             const y = clamp(e.clientY - drag.dy, 6, vh - size - 6);
             setOrbPos({ x, y });
-            try { localStorage.setItem('dsh-elf:orb', JSON.stringify({ x, y })); } catch (err) {}
+            try { localStorage.setItem('dsh-temp-chat:orb', JSON.stringify({ x, y })); } catch (err) {}
           } else {
             const w = 400;
             const h = 540;
             const x = clamp(e.clientX - drag.dx, 6, vw - w - 6);
             const y = clamp(e.clientY - drag.dy, 6, vh - h - 6);
             setWinPos({ x, y });
-            try { localStorage.setItem('dsh-elf:win', JSON.stringify({ x, y })); } catch (err) {}
+            try { localStorage.setItem('dsh-temp-chat:win', JSON.stringify({ x, y })); } catch (err) {}
           }
         };
         if (window.addEventListener) {
@@ -340,7 +340,7 @@ const plugin = {
         if (e.preventDefault) e.preventDefault();
       };
       const startWinDrag = (e) => {
-        if (e.target && e.target.closest && e.target.closest('.dsh-elf-headbtn, .dsh-elf-clear')) return;
+        if (e.target && e.target.closest && e.target.closest('.dsh-temp-chat-headbtn, .dsh-temp-chat-clear')) return;
         const rect = e.currentTarget.getBoundingClientRect();
         setDrag({ kind: 'win', dx: e.clientX - rect.left, dy: e.clientY - rect.top });
         if (e.preventDefault) e.preventDefault();
@@ -590,24 +590,24 @@ const plugin = {
           children.push(
             React.createElement('div', {
               key: 'orb',
-              className: 'dsh-elf-orb',
+              className: 'dsh-temp-chat-orb',
               style: orbStyle,
               onPointerDown: startOrbDrag,
               onClick: (e) => { const moved = lastDragMoved; lastDragMoved = false; if (!moved) { setMode('chat'); } },
               title: T.name,
             },
-              React.createElement(WhaleIcon, { key: 'whale', size: 40, gid: 'dsh-elf-grad-orb' }),
+              React.createElement(WhaleIcon, { key: 'whale', size: 40, gid: 'dsh-temp-chat-grad-orb' }),
             ),
           );
         } else {
           const headChildren = [
-            React.createElement(WhaleIcon, { key: 'whale', size: 24, gid: 'dsh-elf-grad-head' }),
-            React.createElement('span', { key: 'title', className: 'dsh-elf-title' }, T.title),
-            React.createElement('span', { key: 'model', className: 'dsh-elf-model', title: T.modelBadgeTitle }, effModel),
-            React.createElement('span', { key: 'sp', className: 'dsh-elf-spacer' }),
-            React.createElement('button', { key: 'cfg', className: 'dsh-elf-headbtn', title: T.cfgBtn, onClick: () => setCfgOpen(!cfgOpen) }, '⚙'),
-            React.createElement('button', { key: 'min', className: 'dsh-elf-headbtn', title: T.mini, onClick: () => setMode('orb') }, '—'),
-            React.createElement('button', { key: 'clear', className: 'dsh-elf-clear', title: T.clearTitle, onClick: clearChat, disabled: !msgs.length }, T.clear),
+            React.createElement(WhaleIcon, { key: 'whale', size: 24, gid: 'dsh-temp-chat-grad-head' }),
+            React.createElement('span', { key: 'title', className: 'dsh-temp-chat-title' }, T.title),
+            React.createElement('span', { key: 'model', className: 'dsh-temp-chat-model', title: T.modelBadgeTitle }, effModel),
+            React.createElement('span', { key: 'sp', className: 'dsh-temp-chat-spacer' }),
+            React.createElement('button', { key: 'cfg', className: 'dsh-temp-chat-headbtn', title: T.cfgBtn, onClick: () => setCfgOpen(!cfgOpen) }, '⚙'),
+            React.createElement('button', { key: 'min', className: 'dsh-temp-chat-headbtn', title: T.mini, onClick: () => setMode('orb') }, '—'),
+            React.createElement('button', { key: 'clear', className: 'dsh-temp-chat-clear', title: T.clearTitle, onClick: clearChat, disabled: !msgs.length }, T.clear),
           ];
 
           const cfgChildren = [];
@@ -615,9 +615,9 @@ const plugin = {
             const presetOptions = PRESETS.map((p) =>
               React.createElement('option', { key: p.id, value: p.id }, T[p.labelKey]));
             cfgChildren.push(
-              React.createElement('div', { key: 'r0', className: 'dsh-elf-configrow' },
+              React.createElement('div', { key: 'r0', className: 'dsh-temp-chat-configrow' },
                 React.createElement('label', null, T.modelSource),
-                React.createElement('label', { className: 'dsh-elf-check', key: 'follow' },
+                React.createElement('label', { className: 'dsh-temp-chat-check', key: 'follow' },
                   React.createElement('input', {
                     type: 'checkbox',
                     checked: !!cfg.follow,
@@ -626,56 +626,56 @@ const plugin = {
                   T.follow,
                 ),
               ),
-              React.createElement('div', { key: 'r1', className: 'dsh-elf-configrow' },
-                React.createElement('label', { htmlFor: 'dsh-elf-provider' }, T.provider),
+              React.createElement('div', { key: 'r1', className: 'dsh-temp-chat-configrow' },
+                React.createElement('label', { htmlFor: 'dsh-temp-chat-provider' }, T.provider),
                 React.createElement('select', {
-                  id: 'dsh-elf-provider',
+                  id: 'dsh-temp-chat-provider',
                   value: cfg.provider,
                   disabled: cfg.follow,
                   onChange: onProviderChange,
                 }, presetOptions),
               ),
-              React.createElement('div', { key: 'r2', className: 'dsh-elf-configrow' },
-                React.createElement('label', { htmlFor: 'dsh-elf-base' }, T.apiBase),
+              React.createElement('div', { key: 'r2', className: 'dsh-temp-chat-configrow' },
+                React.createElement('label', { htmlFor: 'dsh-temp-chat-base' }, T.apiBase),
                 React.createElement('input', {
-                  id: 'dsh-elf-base', type: 'text', placeholder: 'https://api.deepseek.com/v1', value: cfg.base,
+                  id: 'dsh-temp-chat-base', type: 'text', placeholder: 'https://api.deepseek.com/v1', value: cfg.base,
                   disabled: cfg.follow,
                   onChange: (e) => setCfg(Object.assign({}, cfg, { base: e.target.value })),
                 }),
               ),
-              React.createElement('div', { key: 'r3', className: 'dsh-elf-configrow' },
-                React.createElement('label', { htmlFor: 'dsh-elf-key' }, T.apiKey),
+              React.createElement('div', { key: 'r3', className: 'dsh-temp-chat-configrow' },
+                React.createElement('label', { htmlFor: 'dsh-temp-chat-key' }, T.apiKey),
                 React.createElement('input', {
-                  id: 'dsh-elf-key', type: 'password', placeholder: 'sk-…', value: cfg.apiKey,
+                  id: 'dsh-temp-chat-key', type: 'password', placeholder: 'sk-…', value: cfg.apiKey,
                   disabled: cfg.follow,
                   onChange: (e) => setCfg(Object.assign({}, cfg, { apiKey: e.target.value })),
                 }),
               ),
-              React.createElement('div', { key: 'r4', className: 'dsh-elf-configrow' },
-                React.createElement('label', { htmlFor: 'dsh-elf-model' }, T.model),
+              React.createElement('div', { key: 'r4', className: 'dsh-temp-chat-configrow' },
+                React.createElement('label', { htmlFor: 'dsh-temp-chat-model' }, T.model),
                 React.createElement('input', {
-                  id: 'dsh-elf-model', type: 'text', placeholder: T.modelPh, value: cfg.model,
+                  id: 'dsh-temp-chat-model', type: 'text', placeholder: T.modelPh, value: cfg.model,
                   disabled: cfg.follow,
                   onChange: (e) => setCfg(Object.assign({}, cfg, { model: e.target.value })),
                 }),
               ),
-              React.createElement('div', { key: 'r5', className: 'dsh-elf-configrow' },
-                React.createElement('label', { htmlFor: 'dsh-elf-effort' }, T.reasoning),
+              React.createElement('div', { key: 'r5', className: 'dsh-temp-chat-configrow' },
+                React.createElement('label', { htmlFor: 'dsh-temp-chat-effort' }, T.reasoning),
                 React.createElement('input', {
-                  id: 'dsh-elf-effort', type: 'text', placeholder: T.effortPh, value: cfg.effort,
+                  id: 'dsh-temp-chat-effort', type: 'text', placeholder: T.effortPh, value: cfg.effort,
                   disabled: cfg.follow,
                   onChange: (e) => setCfg(Object.assign({}, cfg, { effort: e.target.value })),
                 }),
               ),
-              React.createElement('div', { key: 'hint', className: 'dsh-elf-hint' },
+              React.createElement('div', { key: 'hint', className: 'dsh-temp-chat-hint' },
                 T.cfgHint,
               ),
             );
           }
 
           const msgChildren = msgs.map((m, i) => {
-            const cls = 'dsh-elf-msg ' + (m.role === 'user' ? 'user' : 'assistant') + (m.error ? ' error' : '');
-            const typing = React.createElement('span', { className: 'dsh-elf-typing' },
+            const cls = 'dsh-temp-chat-msg ' + (m.role === 'user' ? 'user' : 'assistant') + (m.error ? ' error' : '');
+            const typing = React.createElement('span', { className: 'dsh-temp-chat-typing' },
               React.createElement('i', null), React.createElement('i', null), React.createElement('i', null));
             const inner = m.pending ? (m.text || typing) : (m.text || (m.error ? m.error : ''));
             return React.createElement('div', { key: 'm' + i, className: cls },
@@ -688,37 +688,37 @@ const plugin = {
             );
           });
           if (!msgs.length) {
-            msgChildren.push(React.createElement('div', { key: 'empty', className: 'dsh-elf-msg assistant', style: { opacity: '.72' } }, T.empty));
+            msgChildren.push(React.createElement('div', { key: 'empty', className: 'dsh-temp-chat-msg assistant', style: { opacity: '.72' } }, T.empty));
           }
 
           children.push(
-            React.createElement('div', { key: 'win', className: 'dsh-elf-win', style: winStyle },
-              React.createElement('div', { key: 'head', className: 'dsh-elf-head', onPointerDown: startWinDrag },
+            React.createElement('div', { key: 'win', className: 'dsh-temp-chat-win', style: winStyle },
+              React.createElement('div', { key: 'head', className: 'dsh-temp-chat-head', onPointerDown: startWinDrag },
                 headChildren,
               ),
-              React.createElement('div', { key: 'cfg', className: 'dsh-elf-config' + (cfgOpen ? ' open' : '') }, cfgChildren),
-              React.createElement('div', { key: 'msgs', className: 'dsh-elf-msgs' }, msgChildren),
-              React.createElement('div', { key: 'in', className: 'dsh-elf-inputrow' },
+              React.createElement('div', { key: 'cfg', className: 'dsh-temp-chat-config' + (cfgOpen ? ' open' : '') }, cfgChildren),
+              React.createElement('div', { key: 'msgs', className: 'dsh-temp-chat-msgs' }, msgChildren),
+              React.createElement('div', { key: 'in', className: 'dsh-temp-chat-inputrow' },
                 React.createElement('textarea', {
-                  className: 'dsh-elf-input',
+                  className: 'dsh-temp-chat-input',
                   rows: 1,
                   placeholder: T.inputPh,
                   value: input,
                   onChange: (e) => setInput(e.target.value),
                   onKeyDown: onInputKey,
                 }),
-                React.createElement('button', { className: 'dsh-elf-send', onClick: send, disabled: busy || !input.trim() || !cfg }, '➤'),
+                React.createElement('button', { className: 'dsh-temp-chat-send', onClick: send, disabled: busy || !input.trim() || !cfg }, '➤'),
               ),
             ),
           );
         }
 
-        return React.createElement('div', { className: 'dsh-elf-root' }, children);
+        return React.createElement('div', { className: 'dsh-temp-chat-root' }, children);
     }
 
     // ---- Slot registration ----
     ctx.slots.inject('shell.overlay', () => ctx.slots.register(
-      { name: 'shell.overlay', id: 'dsh-elf', order: 500, label: () => (t ? t('name') : (currentLang() === 'zh' ? zh.name : en.name)), locale: NS },
+      { name: 'shell.overlay', id: 'dsh-temp-chat', order: 500, label: () => (t ? t('name') : (currentLang() === 'zh' ? zh.name : en.name)), locale: NS },
       () => React.createElement(ElfApp, null),
     ));
   },

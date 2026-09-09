@@ -2,8 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { en, zh, NS } from '../src/locales.js'
 
-test('namespace is "dsh-elf"', () => {
-  assert.equal(NS, 'dsh-elf')
+test('namespace is "dsh-temp-chat"', () => {
+  assert.equal(NS, 'dsh-temp-chat')
 })
 
 test('en mirrors zh key-for-key (1:1 dictionary)', () => {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { apply } from '../lib/index.js'
 
 // Mount the host plugin and return the registered webServer route handler for
-// /dsh-elf/api. Everything else is faked: llm.stream supplies the chunk
+// /dsh-temp-chat/api. Everything else is faked: llm.stream supplies the chunk
 // sequence the test wants, agentDefaultModel a fixed selection.
 function mount(opts = {}) {
   const routes = []
@@ -27,7 +27,7 @@ function mount(opts = {}) {
 
 // Plain-object fake IncomingMessage: async-iterable so readJsonBody's
 // `for await (const chunk of req)` works, exactly like the real req.
-function makeReq({ method = 'POST', url = '/dsh-elf/api/elf.sessionModel', json = null, raw = null }) {
+function makeReq({ method = 'POST', url = '/dsh-temp-chat/api/elf.sessionModel', json = null, raw = null }) {
   let sent = false
   const payload = raw !== null ? raw : json !== null ? JSON.stringify(json) : ''
   const req = { method, url }
@@ -74,13 +74,13 @@ test('mounts the ordinary Host plugin without a dynamic harness global', () => {
   assert.doesNotThrow(() => apply(ctx))
   assert.equal(routes.length, 1)
   assert.equal(routes[0].kind, 'prefix')
-  assert.equal(routes[0].path, '/dsh-elf/api')
+  assert.equal(routes[0].path, '/dsh-temp-chat/api')
 })
 
 test('only POST is accepted — anything else gets 405', async () => {
   const handler = mount()
   for (const method of ['GET', 'PUT', 'DELETE', 'PATCH']) {
-    const res = await call(handler, makeReq({ method, url: '/dsh-elf/api/elf.sessionModel' }))
+    const res = await call(handler, makeReq({ method, url: '/dsh-temp-chat/api/elf.sessionModel' }))
     assert.equal(res.status, 405, `${method} must be rejected with 405`)
     assert.deepEqual(parse(res), { ok: false, error: '只支持 POST' })
   }
@@ -88,17 +88,17 @@ test('only POST is accepted — anything else gets 405', async () => {
 
 test('unknown or nested methods return 404', async () => {
   const handler = mount()
-  const res = await call(handler, makeReq({ url: '/dsh-elf/api/elf.doesNotExist' }))
+  const res = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.doesNotExist' }))
   assert.equal(res.status, 404)
   assert.equal(parse(res).ok, false)
-  const nested = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat/start' }))
+  const nested = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat/start' }))
   assert.equal(nested.status, 404)
   assert.equal(parse(nested).ok, false)
 })
 
 test('a non-JSON body is rejected with 400', async () => {
   const handler = mount()
-  const res = await call(handler, makeReq({ url: '/dsh-elf/api/elf.sessionModel', raw: 'not json{' }))
+  const res = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.sessionModel', raw: 'not json{' }))
   assert.equal(res.status, 400)
   assert.equal(parse(res).ok, false)
 })
@@ -106,14 +106,14 @@ test('a non-JSON body is rejected with 400', async () => {
 test('an oversized body is rejected with 413', async () => {
   const handler = mount()
   const big = JSON.stringify({ messages: [{ role: 'user', text: 'x'.repeat(1 << 20) }] })
-  const res = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', raw: big }))
+  const res = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', raw: big }))
   assert.equal(res.status, 413)
   assert.equal(parse(res).ok, false)
 })
 
 test('elf.sessionModel reports the session default model and effort', async () => {
   const handler = mount()
-  const res = await call(handler, makeReq({ url: '/dsh-elf/api/elf.sessionModel' }))
+  const res = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.sessionModel' }))
   assert.equal(res.status, 200)
   assert.deepEqual(parse(res), {
     ok: true,
@@ -123,7 +123,7 @@ test('elf.sessionModel reports the session default model and effort', async () =
 
 test('elf.chat.start with no messages is refused', async () => {
   const handler = mount()
-  const res = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { messages: [] } }))
+  const res = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { messages: [] } }))
   assert.equal(res.status, 200)
   assert.deepEqual(parse(res).value, { ok: false, error: '没有消息内容' })
 })
@@ -137,7 +137,7 @@ test('chat lifecycle: start streams deltas, poll accumulates, close frees the en
     },
   })
 
-  const started = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { messages: [{ role: 'user', text: '嗨' }] } }))
+  const started = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { messages: [{ role: 'user', text: '嗨' }] } }))
   assert.equal(started.status, 200)
   const { ok, chatId } = parse(started).value
   assert.equal(ok, true)
@@ -145,7 +145,7 @@ test('chat lifecycle: start streams deltas, poll accumulates, close frees the en
 
   let r = null
   for (let i = 0; i < 50; i++) {
-    r = parse(await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.poll', json: { chatId } }))).value
+    r = parse(await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.poll', json: { chatId } }))).value
     if (r.done) break
     await new Promise((resolve) => setImmediate(resolve))
   }
@@ -153,11 +153,11 @@ test('chat lifecycle: start streams deltas, poll accumulates, close frees the en
   assert.equal(r.text, '你好')
   assert.equal(r.error, null)
 
-  const closed = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.close', json: { chatId } }))
+  const closed = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.close', json: { chatId } }))
   assert.deepEqual(parse(closed), { ok: true, value: { ok: true } })
 
   // Polling a closed chat is reported as ended, not an error.
-  const after = parse(await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.poll', json: { chatId } }))).value
+  const after = parse(await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.poll', json: { chatId } }))).value
   assert.equal(after.done, true)
   assert.equal(after.ok, false)
 })
@@ -169,10 +169,10 @@ test('a stream that throws surfaces the error on poll and still ends', async () 
       throw new Error('provider exploded')
     },
   })
-  const { chatId } = parse(await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { messages: [{ role: 'user', text: 'x' }] } }))).value
+  const { chatId } = parse(await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { messages: [{ role: 'user', text: 'x' }] } }))).value
   let r = null
   for (let i = 0; i < 50; i++) {
-    r = parse(await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.poll', json: { chatId } }))).value
+    r = parse(await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.poll', json: { chatId } }))).value
     if (r.done) break
     await new Promise((resolve) => setImmediate(resolve))
   }
@@ -181,19 +181,19 @@ test('a stream that throws surfaces the error on poll and still ends', async () 
 })
 test('chat.start errors follow the requested language', async () => {
   const handler = mount()
-  const enRes = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { lang: 'en', messages: [] } }))
+  const enRes = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { lang: 'en', messages: [] } }))
   assert.equal(enRes.status, 200)
   assert.deepEqual(parse(enRes).value, { ok: false, error: 'No message content' })
-  const zhRes = await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { messages: [] } }))
+  const zhRes = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { messages: [] } }))
   assert.deepEqual(parse(zhRes).value, { ok: false, error: '没有消息内容' })
 })
 
 test('protocol errors follow the lang from the request body', async () => {
   const handler = mount()
-  const badMethod = await call(handler, makeReq({ method: 'GET', url: '/dsh-elf/api/elf.sessionModel', json: { lang: 'en' } }))
+  const badMethod = await call(handler, makeReq({ method: 'GET', url: '/dsh-temp-chat/api/elf.sessionModel', json: { lang: 'en' } }))
   assert.equal(badMethod.status, 405)
   assert.deepEqual(parse(badMethod), { ok: false, error: 'Only POST is supported' })
-  const unknown = await call(handler, makeReq({ url: '/dsh-elf/api/elf.nope', json: { lang: 'en' } }))
+  const unknown = await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.nope', json: { lang: 'en' } }))
   assert.equal(unknown.status, 404)
   assert.deepEqual(parse(unknown), { ok: false, error: 'Unknown elf API: elf.nope' })
 })
@@ -203,8 +203,8 @@ test('the system prompt is a bilingual template and follows lang', async () => {
   const handler = mount({
     llmStream: async function* (options) { captured.push(options); },
   })
-  await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { lang: 'en', messages: [{ role: 'user', text: 'hi' }] } }))
-  await call(handler, makeReq({ url: '/dsh-elf/api/elf.chat.start', json: { lang: 'zh', messages: [{ role: 'user', text: '嗨' }] } }))
+  await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { lang: 'en', messages: [{ role: 'user', text: 'hi' }] } }))
+  await call(handler, makeReq({ url: '/dsh-temp-chat/api/elf.chat.start', json: { lang: 'zh', messages: [{ role: 'user', text: '嗨' }] } }))
   await new Promise((resolve) => setImmediate(resolve))
   assert.equal(captured.length, 2)
   assert.match(captured[0].system, /DeepSeek elf living in DSH/)
