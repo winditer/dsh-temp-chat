@@ -164,7 +164,7 @@ assets/            Logo / whale artwork
 
   ```yaml
   minimumReleaseAgeExclude:
-    - dsh-temp-chat@2.2.1
+    - dsh-temp-chat@2.3.0
   ```
 
 ## License

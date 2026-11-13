@@ -3,7 +3,7 @@
 All notable changes to dsh-temp-chat are tracked here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## Unreleased
+## 2.3.0 — 2026-11-13
 
 ### Fixed
 
