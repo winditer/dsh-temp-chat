@@ -3,6 +3,17 @@
 All notable changes to dsh-temp-chat are tracked here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2.3.1 — 2026-11-13
+
+### Fixed
+
+- `package.json` now declares `repository`, `homepage` and `bugs` pointing at
+  [winditer/dsh-temp-chat](https://github.com/winditer/dsh-temp-chat). Without a
+  `repository` field a published package cannot be linked back to its source
+  repository, so the plugin catalog could not associate the npm package with
+  this repo and listed it as a GitHub-only entry (`npm: null`, no version, no
+  download count). No code changes.
+
 ## 2.3.0 — 2026-11-13
 
 ### Fixed

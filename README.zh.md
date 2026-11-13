@@ -155,7 +155,7 @@ assets/            Logo / 鲸鱼素材
 
   ```yaml
   minimumReleaseAgeExclude:
-    - dsh-temp-chat@2.3.0
+    - dsh-temp-chat@2.3.1
   ```
 
 ## 许可证
